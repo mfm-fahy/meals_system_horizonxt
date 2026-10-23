@@ -3,7 +3,6 @@
   "services": {
     "api": {
       "root": ".",
-      "runtime": "nodejs20",
       "entrypoint": "server.js",
       "buildCommand": "npm install",
       "devCommand": "node server.js"
