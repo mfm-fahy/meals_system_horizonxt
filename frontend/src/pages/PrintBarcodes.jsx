@@ -71,45 +71,42 @@ export default function PrintBarcodes() {
     if (toPrint.length === 0) return;
 
     const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-    const badgeWidth = 90;
-    const badgeHeight = 70;
+    const barcodeWidth = 25;
+    const barcodeHeight = 50;
     const margin = 10;
     const gap = 5;
+    const cols = Math.floor((210 - 2 * margin + gap) / (barcodeWidth + gap));
     let x = margin;
     let y = margin;
+    let col = 0;
 
     toPrint.forEach((p, i) => {
-      if (i > 0 && i % 2 === 0) {
-        x = margin;
-        y += badgeHeight + gap;
+      if (i > 0) {
+        col++;
+        if (col >= cols) {
+          col = 0;
+          x = margin;
+          y += barcodeHeight + gap;
+        } else {
+          x += barcodeWidth + gap;
+        }
       }
-      if (y + badgeHeight > 280) {
+
+      if (y + barcodeHeight > 280) {
         doc.addPage();
         x = margin;
         y = margin;
+        col = 0;
       }
-
-      doc.setDrawColor(0);
-      doc.setLineWidth(0.5);
-      doc.rect(x, y, badgeWidth, badgeHeight);
-
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'bold');
-      doc.text('HORIZONXT 2026', x + 5, y + 8);
-
-      doc.setFontSize(8);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`Team: ${p.teamName}`, x + 5, y + 15);
-      doc.text(`${p.name}`, x + 5, y + 22);
-      doc.text(`${p.college}`, x + 5, y + 29);
-      doc.text(`${p.role}`, x + 5, y + 36);
 
       const canvas = document.createElement('canvas');
       JsBarcode(canvas, p.barcode, { format: 'CODE128', width: 2, height: 50, displayValue: true, fontSize: 12 });
       const imgData = canvas.toDataURL('image/png');
-      doc.addImage(imgData, 'PNG', x + 5, y + 40, 25, 50);
+      doc.addImage(imgData, 'PNG', x, y, barcodeWidth, barcodeHeight);
 
-      if (i % 2 === 0) x += badgeWidth + gap;
+      doc.setFontSize(6);
+      doc.setFont('helvetica', 'normal');
+      doc.text(p.barcode, x + barcodeWidth / 2, y + barcodeHeight + 3, { align: 'center' });
     });
 
     if (download) {
