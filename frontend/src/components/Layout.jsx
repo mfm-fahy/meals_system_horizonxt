@@ -8,6 +8,7 @@ const navItems = [
   { path: '/participants', label: 'Participants', icon: '👥' },
   { path: '/print', label: 'Print Barcodes', icon: '🖨️' },
   { path: '/meals', label: 'Meals', icon: '🍽️' },
+  { path: '/zebra', label: 'Zebra Print', icon: '🏷️' },
 ];
 
 export default function Layout() {

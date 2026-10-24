@@ -7,6 +7,7 @@ import ManualEntry from './pages/ManualEntry';
 import Participants from './pages/Participants';
 import PrintBarcodes from './pages/PrintBarcodes';
 import Meals from './pages/Meals';
+import ZebraPrint from './pages/ZebraPrint';
 import './index.css';
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
             <Route path="participants" element={<Participants />} />
             <Route path="print" element={<PrintBarcodes />} />
             <Route path="meals" element={<Meals />} />
+            <Route path="zebra" element={<ZebraPrint />} />
           </Route>
         </Routes>
       </BrowserRouter>

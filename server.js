@@ -244,6 +244,70 @@ app.delete('/api/participants/:id', async (req, res) => {
   res.json({ message: 'Participant deleted' });
 });
 
+function generateZPL(participant) {
+  const { teamId, teamName, barcode, name } = participant;
+  return `^XA
+^PW406
+^LL200
+^FO20,20^A0N,25,25^FD${teamId || 'N/A'}^FS
+^FO20,55^A0N,25,25^FD${teamName || 'N/A'}^FS
+^FO20,90^BY2
+^BCN,50,N,N
+^FD${barcode}^FS
+^FO20,160^A0N,20,20^FD${name}^FS
+^XZ`;
+}
+
+app.get('/api/participants/:id/zpl', async (req, res) => {
+  const participant = await Participant.findById(req.params.id);
+  if (!participant) return res.status(404).json({ error: 'Not found' });
+  const zpl = generateZPL(participant);
+  res.set('Content-Type', 'application/zpl');
+  res.send(zpl);
+});
+
+app.post('/api/participants/print-batch', async (req, res) => {
+  const { participantIds } = req.body;
+  if (!participantIds || !Array.isArray(participantIds)) {
+    return res.status(400).json({ error: 'participantIds array required' });
+  }
+  const participants = await Participant.find({ _id: { $in: participantIds } });
+  const zpl = participants.map(generateZPL).join('\n');
+  res.set('Content-Type', 'application/zpl');
+  res.send(zpl);
+});
+
+app.post('/api/print-raw', async (req, res) => {
+  const { zpl, printerIp, printerPort } = req.body;
+  if (!zpl) {
+    return res.status(400).json({ error: 'ZPL data required' });
+  }
+  const ip = printerIp || process.env.ZEBRA_PRINTER_IP;
+  const port = printerPort || (process.env.ZEBRA_PRINTER_PORT || 9100);
+  if (!ip) {
+    return res.status(400).json({ error: 'Printer IP not configured. Set ZEBRA_PRINTER_IP env var or pass printerIp in request.' });
+  }
+  const net = require('net');
+  const client = new net.Socket();
+  client.setTimeout(5000);
+  client.connect(port, ip, () => {
+    client.write(zpl);
+    client.end();
+  });
+  client.on('error', (err) => {
+    res.status(500).json({ error: `Printer connection failed: ${err.message}` });
+  });
+  client.on('timeout', () => {
+    client.destroy();
+    res.status(500).json({ error: 'Printer connection timeout' });
+  });
+  client.on('close', () => {
+    if (!res.headersSent) {
+      res.json({ success: true, message: 'Sent to printer' });
+    }
+  });
+});
+
 app.get('/api/meals', async (req, res) => {
   const meals = await Meal.find().sort({ date: 1, mealType: 1 });
   res.json(meals);

@@ -30,4 +30,6 @@ export const api = {
   seedMeals: () => fetchApi('/meals/seed', { method: 'POST' }),
   serveFood: (barcode, mealId, method) => fetchApi(`/participants/${barcode}/serve-food`, { method: 'POST', body: JSON.stringify({ mealId, method }) }),
   serveFoodManual: (email, mealId) => fetchApi('/participants/manual/serve-food', { method: 'POST', body: JSON.stringify({ email, mealId }) }),
+  getZPL: (id) => fetchApi(`/participants/${id}/zpl`, { headers: { 'Accept': 'application/zpl' } }),
+  printBatch: (ids) => fetchApi('/participants/print-batch', { method: 'POST', body: JSON.stringify({ participantIds: ids }), headers: { 'Accept': 'application/zpl' } }),
 };
