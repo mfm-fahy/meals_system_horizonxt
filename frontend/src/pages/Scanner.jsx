@@ -15,10 +15,27 @@ export default function Scanner() {
   const [scanning, setScanning] = useState(false);
   const [error, setError] = useState('');
   const [lastScanned, setLastScanned] = useState(null);
+  const [cameras, setCameras] = useState([]);
+  const [selectedCameraId, setSelectedCameraId] = useState('');
 
   useEffect(() => {
     loadActiveMeals();
+    enumerateCameras();
   }, []);
+
+  const enumerateCameras = async () => {
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devices.filter(d => d.kind === 'videoinput');
+      setCameras(videoDevices);
+      if (videoDevices.length > 0 && !selectedCameraId) {
+        const backCamera = videoDevices.find(d => d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('rear'));
+        setSelectedCameraId(backCamera ? backCamera.deviceId : videoDevices[0].deviceId);
+      }
+    } catch (err) {
+      console.error('Failed to enumerate cameras:', err);
+    }
+  };
 
   const loadActiveMeals = async () => {
     try {
@@ -180,11 +197,31 @@ export default function Scanner() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
           <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Camera Scanner</h3>
+          {cameras.length > 1 && (
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Select Camera</label>
+              <select
+                value={selectedCameraId}
+                onChange={e => setSelectedCameraId(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                {cameras.map(cam => (
+                  <option key={cam.deviceId} value={cam.deviceId}>
+                    {cam.label || `Camera ${cam.deviceId.slice(0, 8)}...`}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className="relative">
             <Webcam
+              key={selectedCameraId}
               ref={webcamRef}
               audio={false}
-              videoConstraints={{ facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }}
+              videoConstraints={selectedCameraId 
+                ? { deviceId: { exact: selectedCameraId }, width: { ideal: 1280 }, height: { ideal: 720 } }
+                : { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+              }
               className="w-full rounded-lg bg-gray-900"
               style={{ minHeight: '300px' }}
             />
