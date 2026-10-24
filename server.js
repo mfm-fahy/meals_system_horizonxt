@@ -403,6 +403,9 @@ app.get('/api/participants/overview', async (req, res) => {
       'foodServings.mealId': meal._id,
       teamName: { $regex: /horizonxt/i }
     });
+    const totalStudents = await Participant.countDocuments({ status: 'active' });
+    const medaithonStudents = await Participant.countDocuments({ status: 'active', teamName: { $regex: /medaithon/i } });
+    const horizonxtStudents = await Participant.countDocuments({ status: 'active', teamName: { $regex: /horizonxt/i } });
     return {
       mealId: meal._id,
       date: meal.date,
@@ -411,7 +414,10 @@ app.get('/api/participants/overview', async (req, res) => {
       endTime: meal.endTime,
       totalServed: servedCount,
       medaithonServed,
-      horizonxtServed
+      horizonxtServed,
+      totalStudents,
+      medaithonStudents,
+      horizonxtStudents
     };
   }));
 

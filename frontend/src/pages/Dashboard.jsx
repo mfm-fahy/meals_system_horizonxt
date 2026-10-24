@@ -62,7 +62,7 @@ export default function Dashboard() {
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white">🍽️ Food Serving Status</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Meals served count</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Meals served count vs total students</p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -71,8 +71,10 @@ export default function Dashboard() {
                   <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Date</th>
                   <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Meal</th>
                   <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Time</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Total</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">HORIZONXT</th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Total Served</th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">Total Students</th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">HORIZONXT Served</th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 dark:text-gray-400">HORIZONXT Students</th>
                 </tr>
               </thead>
               <tbody>
@@ -86,7 +88,9 @@ export default function Dashboard() {
                     </td>
                     <td className="py-3 px-4 text-sm text-gray-600 dark:text-gray-400">{meal.startTime} - {meal.endTime}</td>
                     <td className="py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">{meal.totalServed}</td>
+                    <td className="py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">{meal.totalStudents}</td>
                     <td className="py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">{meal.horizonxtServed}</td>
+                    <td className="py-3 px-4 text-sm font-medium text-gray-900 dark:text-white">{meal.horizonxtStudents}</td>
                   </tr>
                 ))}
               </tbody>
