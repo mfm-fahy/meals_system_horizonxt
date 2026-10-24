@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { api } from '../utils/api';
 
 export default function Scanner() {
@@ -10,6 +10,7 @@ export default function Scanner() {
   const [error, setError] = useState('');
   const [lastScanned, setLastScanned] = useState('');
   const barcodeRef = useRef(null);
+  const debounceRef = useRef(null);
 
   useEffect(() => {
     loadActiveMeals();
@@ -28,7 +29,7 @@ export default function Scanner() {
     }
   };
 
-  const handleScan = async (barcode) => {
+  const handleScan = useCallback(async (barcode) => {
     setError('');
     try {
       let data;
@@ -56,21 +57,31 @@ export default function Scanner() {
       setResult({ success: false, error: err.message });
       setTimeout(() => setResult(null), 3000);
     }
+  }, [mode, selectedMealId, scanType]);
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    const barcode = value.trim();
+
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    if (barcode) {
+      debounceRef.current = setTimeout(() => {
+        handleScan(barcode);
+      }, 300);
+    }
   };
 
   const handleManualBarcode = async (e) => {
     e.preventDefault();
     const barcode = e.target.elements.barcode.value.trim();
     if (barcode) {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
       await handleScan(barcode);
-    }
-  };
-
-  const handleInputChange = (e) => {
-    const barcode = e.target.value.trim();
-    if (barcode && barcode.endsWith('\n')) {
-      e.target.value = '';
-      handleScan(barcode.replace('\n', ''));
     }
   };
 
@@ -171,9 +182,9 @@ export default function Scanner() {
               name="barcode"
               type="text"
               autoComplete="off"
-              placeholder={mode === 'servefood' ? 'Enter barcode to serve food' : 'Enter or scan barcode (e.g., HZX...)'}
+              placeholder={mode === 'servefood' ? 'Enter barcode to serve food' : 'Scan barcode (auto-processes)'}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              onKeyDown={handleInputChange}
+              onChange={handleInputChange}
               disabled={mode === 'servefood' && activeMeals.length === 0}
             />
           </div>
