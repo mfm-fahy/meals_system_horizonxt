@@ -70,7 +70,7 @@ export default function Participants() {
 
     const doc = new jsPDF({ unit: 'mm', format: 'a4' });
     const badgeWidth = 90;
-    const badgeHeight = 55;
+    const badgeHeight = 70;
     const margin = 10;
     const gap = 5;
     let x = margin;
@@ -103,9 +103,9 @@ export default function Participants() {
       doc.text(`${p.role}`, x + 5, y + 36);
 
       const canvas = document.createElement('canvas');
-      JsBarcode(canvas, p.barcode, { format: 'CODE128', width: 1.5, height: 30, displayValue: true, fontSize: 10 });
+      JsBarcode(canvas, p.barcode, { format: 'CODE128', width: 2, height: 50, displayValue: true, fontSize: 12 });
       const imgData = canvas.toDataURL('image/png');
-      doc.addImage(imgData, 'PNG', x + 5, y + 40, 80, 15);
+      doc.addImage(imgData, 'PNG', x + 5, y + 40, 25, 50);
 
       if (i % 2 === 0) x += badgeWidth + gap;
     });
