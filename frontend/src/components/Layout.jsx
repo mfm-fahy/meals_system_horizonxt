@@ -7,6 +7,7 @@ const navItems = [
   { path: '/manual', label: 'Manual Entry', icon: '⌨️' },
   { path: '/participants', label: 'Participants', icon: '👥' },
   { path: '/print', label: 'Print Barcodes', icon: '🖨️' },
+  { path: '/meals', label: 'Meals', icon: '🍽️' },
 ];
 
 export default function Layout() {
