@@ -9,7 +9,23 @@ async function fetchApi(endpoint, options = {}) {
     const err = await res.json().catch(() => ({ error: 'Request failed' }));
     throw new Error(err.error || 'Request failed');
   }
-  return res.json();
+  const contentType = res.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    return res.json();
+  }
+  return res.text();
+}
+
+async function fetchText(endpoint, options = {}) {
+  const res = await fetch(`${API_BASE}${endpoint}`, {
+    headers: { 'Content-Type': 'application/json', ...options.headers },
+    ...options,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: 'Request failed' }));
+    throw new Error(err.error || 'Request failed');
+  }
+  return res.text();
 }
 
 export const api = {
@@ -30,6 +46,6 @@ export const api = {
   seedMeals: () => fetchApi('/meals/seed', { method: 'POST' }),
   serveFood: (barcode, mealId, method) => fetchApi(`/participants/${barcode}/serve-food`, { method: 'POST', body: JSON.stringify({ mealId, method }) }),
   serveFoodManual: (email, mealId) => fetchApi('/participants/manual/serve-food', { method: 'POST', body: JSON.stringify({ email, mealId }) }),
-  getZPL: (id) => fetchApi(`/participants/${id}/zpl`, { headers: { 'Accept': 'application/zpl' } }),
-  printBatch: (ids) => fetchApi('/participants/print-batch', { method: 'POST', body: JSON.stringify({ participantIds: ids }), headers: { 'Accept': 'application/zpl' } }),
+  getZPL: (id) => fetchText(`/participants/${id}/zpl`, { headers: { 'Accept': 'application/zpl' } }),
+  printBatch: (ids) => fetchText('/participants/print-batch', { method: 'POST', body: JSON.stringify({ participantIds: ids }), headers: { 'Accept': 'application/zpl' } }),
 };
