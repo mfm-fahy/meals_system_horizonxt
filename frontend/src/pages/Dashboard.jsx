@@ -17,6 +17,7 @@ export default function Dashboard() {
     { label: 'Total Participants', value: stats.total, color: 'bg-blue-500', icon: '👥' },
     { label: 'Currently Inside', value: stats.inside, color: 'bg-green-500', icon: '🏢' },
     { label: 'Outside', value: stats.outside, color: 'bg-orange-500', icon: '🚶' },
+    { label: 'Total Meals Served', value: stats.mealStats?.reduce((sum, m) => sum + (m.totalServed || 0), 0) || 0, color: 'bg-purple-500', icon: '🍽️' },
   ];
 
   const formatDate = (dateStr) => {
@@ -40,7 +41,7 @@ export default function Dashboard() {
         <p className="text-gray-600 dark:text-gray-400 mt-1">HorizonXT 2026 Hackathon - Entry/Exit & Food Tracking</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map(card => (
           <div key={card.label} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center justify-between">
